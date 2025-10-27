@@ -1,23 +1,25 @@
-const stateStore = new Map();
-const effectStore = new Map();
-let currentComponentId = null;
-let effectIndex = 0;
+window.config = {
+  "routes": {},
+  "stateStore": new Map(),
+  "effectStore": new Map(),
+  "currentComponentId": null,
+  "effectIndex": 0
+};
 
-export function useState(initialValue) {
-  const id = currentComponentId + '_' + effectIndex++;
-  if (!stateStore.has(id)) stateStore.set(id, initialValue);
-
-  function setState(newValue) {
-    stateStore.set(id, newValue);
+export const useState = (initialValue) => {
+  const id = window.config.currentComponentId + '_' + window.config.effectIndex++;
+  if (!window.config.stateStore.has(id)) window.config.stateStore.set(id, initialValue);
+  const setState = (newValue) => {
+    window.config.stateStore.set(id, newValue);
     reRender();
   }
 
-  return [stateStore.get(id), setState];
+  return [window.config.stateStore.get(id), setState];
 }
 
-export function useEffect(callback, deps = []) {
-  const id = currentComponentId + '_effect_' + effectIndex++;
-  const old = effectStore.get(id);
+export const useEffect = (callback, deps = []) => {
+  const id = window.config.currentComponentId + '_effect_' + window.config.effectIndex++;
+  const old = window.config.effectStore.get(id);
 
   let hasChanged = true;
   if (old) {
@@ -26,21 +28,18 @@ export function useEffect(callback, deps = []) {
   }
 
   if (hasChanged) callback();
-  effectStore.set(id, [deps]);
+  window.config.effectStore.set(id, [deps]);
 }
 
-export function h(tag, props = {}, ...children) {
+export const h = (tag, props = {}, ...children) => {
   if (typeof tag === 'function') return tag({ ...props, children });
-
   const el = document.createElement(tag);
-
   for (let key in props) {
     if (key.startsWith('on') && typeof props[key] === 'function') {
       el.addEventListener(key.substring(2).toLowerCase(), props[key]);
     } else if (key === 'className') el.className = props[key];
     else el.setAttribute(key, props[key]);
   }
-
   children.flat().forEach(child => {
     if (typeof child === 'string' || typeof child === 'number') {
       el.appendChild(document.createTextNode(child));
@@ -50,31 +49,46 @@ export function h(tag, props = {}, ...children) {
       child.forEach(c => el.appendChild(c));
     }
   });
-
   return el;
 }
 
-const routes = {};
-
-export function route(path, component) {
-  routes[path] = component;
+export const route = (path, component) => {
+  window.config.routes[path] = component;
 }
 
-export function NotFound() {
+export const NotFound = () => {
   return h('div', {}, h('h2', {}, '404'), h('p', {}, 'Page not found'));
 }
 
-function getCurrentRoute() {
+export const getCurrentRoute = () => {
   return location.hash.slice(1) || '/';
 }
 
-export function reRender() {
+export const getCurrentComponentId = () => window.config.currentComponentId;
+
+export const getCurrentRouteStateStore = (currentComponentId) => {
+  return Object.fromEntries(
+    [...window.config.stateStore].filter(
+      ([k]) => k.startsWith(currentComponentId + '_')
+    )
+  );
+}
+
+export const getCurrentRouteEffectStore = (currentComponentId) => {
+  return Object.fromEntries(
+    [...window.config.effectStore].filter(
+      ([k]) => k.startsWith(currentComponentId + '_')
+    )
+  );
+}
+
+export const reRender = () => {
   const app = document.getElementById('app');
   const route = getCurrentRoute();
   app.innerHTML = '';
-  const Component = routes[route] || NotFound;
-  currentComponentId = Component.name;
-  effectIndex = 0;
+  const Component = window.config.routes[route] || NotFound;
+  window.config.currentComponentId = Component.name;
+  window.config.effectIndex = 0;
   app.appendChild(Component());
 }
 

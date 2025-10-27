@@ -1,4 +1,4 @@
-import { h, useState, useEffect, route } from './miniReactPure.js';
+import { h, useState, useEffect, route, getCurrentRouteEffectStore, getCurrentRouteStateStore, getCurrentComponentId } from './miniReactPure.js';
 import axios from 'https://cdn.jsdelivr.net/npm/axios@1.12.2/+esm';
 
 function Card({ title, body }) {
@@ -11,8 +11,7 @@ function Card({ title, body }) {
 }
 
 function Home() {
-  let currentComponentId = 'Home';
-  const [count, setCount] = useState(0);
+  //const [count, setCount] = useState(0);
   const [posts, setPosts] = useState([]);
 
   useEffect(() => {
@@ -37,6 +36,7 @@ function About() {
     h('p', {}, 'Pure vanilla JS SPA using mini React framework without JSX.')
   );
 }
+
 function IPAddress() {
   const [ip, setIp] = useState('Loading...');
 
