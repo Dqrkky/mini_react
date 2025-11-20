@@ -1,4 +1,14 @@
-import { h, useState, useEffect, route, getCurrentRouteEffectStore, getCurrentRouteStateStore, getCurrentComponentId } from './miniReactPure.js';
+import { 
+  h,
+  useState,
+  useEffect,
+  route,
+  getCurrentRouteEffectStore,
+  getCurrentRouteStateStore,
+  getCurrentComponentId,
+  buildNav
+} from './miniReactPure.js';
+import { videoplayer } from './videoohandler.js';
 import axios from 'https://cdn.jsdelivr.net/npm/axios@1.12.2/+esm';
 
 function Card({ title, body }) {
@@ -37,22 +47,35 @@ function About() {
   );
 }
 
-function IPAddress() {
-  const [ip, setIp] = useState('Loading...');
-
-  useEffect(() => {
-    axios.get('https://api.ipify.org?format=json')
-      .then(res => setIp(res.data.ip))
-      .catch(err => setIp('Error fetching IP'));
-  }, []);
-  
+function VideoPage() {
   return h('div', {},
-    h('h2', {}, 'IP Address Page'),
-    h('p', {}, 'Your IP address will be displayed here.'),
-    h('p', {}, `Your IP Address is: ${ip}`)
+    h('h2', {}, 'Video Player Page'),
+    h(videoplayer, {
+      src: 'https://www.w3schools.com/html/mov_bbb.mp4',
+      poster: 'https://peach.blender.org/wp-content/uploads/title_anouncement.jpg?x11217'
+    })
   );
 };
 
-route('/', Home);
-route('/about', About);
-route('/ip', IPAddress);
+route("/", Home, {
+  label: "Home",
+  icon: "bi bi-house",
+  group: "main",
+  order: 1
+});
+
+route("/about", About, {
+  label: "About",
+  icon: "bi bi-info-circle",
+  group: "main",
+  order: 2
+});
+
+route("/video", VideoPage, {
+  label: "Videos",
+  icon: "bi bi-camera-video",
+  group: "media",
+  order: 1
+});
+
+buildNav('.navbar-nav');
