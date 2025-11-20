@@ -8,7 +8,7 @@ import {
   getCurrentComponentId,
   buildNav
 } from './miniReactPure.js';
-import { videoplayer } from './videoohandler.js';
+import { videoplayer } from './videohandler.js';
 import axios from 'https://cdn.jsdelivr.net/npm/axios@1.12.2/+esm';
 
 function Card({ title, body }) {
